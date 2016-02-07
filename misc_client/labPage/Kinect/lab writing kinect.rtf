@@ -1,0 +1,187 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf350
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fswiss\fcharset0 ArialMT;}
+{\colortbl;\red255\green255\blue255;\red23\green23\blue23;\red0\green59\blue162;}
+\margl1440\margr1440\vieww16640\viewh22120\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\f0\fs24 \cf0 \
+
+\fs28 \ul Lab | Tutorials : Kinect\
+
+\i \ulnone Hand Tracking with the Microsoft Kinect and Processing
+\i0\fs24 \
+
+\i \
+\pard\pardeftab720\sl300\ql\qnatural
+
+\f1\i0\fs22 \cf2 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\f0\fs24 \cf0 We've been following the development of Kinect Hacking from the beginning, and in particular the different implementations of Open Kinect / Libfreenect / OpenNI libraries that allow you to access the Kinect in different ways. We can see it's use in a variety of situations, from interactive installations to virtual user interfaces\'85 but for all of these, it's pretty likely that you will need to do some type of hand tracking first! So, we've done some quick examples showing how to go about this in three different Libraries - Daniel Shiffman's OpenKinect (based on libfreenect, OSX only), SenseBloom osceleton (based on OpenNI skeleton tracking, cross platform), and SimpleOpenNI (a full OpenNI wrapper, cross platform).\
+\
+At the time of writing, we've never been able to overcome the installation problems for CLNUI on Windows, and had not tried the new dLibs_freenect Windows library.\
+\
+We used Processing 1.5 along with GLGraphics 0.95, which you will need to install. For the second example, you will need to install OscP5
+\fs26 \
+\
+
+\fs24 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\b\fs26 \cf0 \ul \ulc0 Libfreenect \ulnone \'85 (kinecTag_shiffman)
+\b0\fs24 \
+\
+Daniel Shiffman's library allows us to access both the depth image and the rgb image of the Kinect camera. The depth image is useful, in that it allows us to generate point clouds, and returns a Z-depth for every pixel. Using this, we can set  a distance threshold, telling the camera not to draw anything to the screen expect what crosses that threshold. \
+\
+We modified the Average Point Tracking example included with the library. Note that this example does not use proper openCV hand tracking, but that it is calculating the average xy point of what the camera sees past the distance threshold (meaning you could track any part of your body you wanted, or an entire body.. but again, we are interested in hands). \
+\
+The only notable edit we committed was on Line 51 of the KinectTracker tab, we un-mirrored the image, changing \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\i \cf0 int offset = kw-x-1+y*kw;
+\i0 \
+\
+to\
+\
+
+\i int offset = x + y * kw;
+\i0 \
+\
+\
+Then, we added a Class for James Alliban's port of Eric Natzke's ribbons to draw with (see source code), and placed that into a GLGraphics offscreen buffer, and wrote a few custom functions to draw and/or erase a ribbon based upon our tracked hand when the mouse is pressed. \
+\
+// Insert functions tab\
+\
+Our final draw() function looks like this:\
+\
+// Insert draw()\
+\
+\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\b\fs26 \cf0 \ul \ulc0 OSCeleton\ulnone \'85 (kinecTag_osceleton)
+\fs24 \ul \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\b0 \cf0 \ulnone \
+\
+OSCeleton is essentially a C program without a GUI, that tracks your skeleton via the Kinect, then sends the XYZ point of each joint via OSC. You are able to receive this information in many applications/programming languages. As a base, we used the MotionCapture3D example from SenseBloom.\
+\
+We had followed Tohm Judson's tutorial for installing OpenNI and PrimeSense on OS X, but the installation page of the SimpleOpenNI library might help as well, especially for different platforms. Before you run this sketch, you must start /.../openNI/Sensebloom-OSCeleton-b2f3f21/osceleton and calibrate - stand at least 5 feet away in the 'stick 'em up'  pose.\
+\
+In terms of editing, in the Skeleton tab, we added a new co-ordinate array\
+\
+
+\i float[] handCoords[] = \{rHandCoords\};  \
+
+\i0 \
+\
+In the draw() function, we ran the skeletal points through a number of vertices to draw the skeleton, then assigned two xy variables to the point of the xy co-ordinates of our handCoords Array, so that we can draw at that point. As in the previous example, we added the Ribbon Class and custom functions for drawing by utilizing the mouse (see above). Our final draw() function looks like this:\
+\
+// Insert draw()\
+\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\b\fs26 \cf0 \ul \ulc0 SimpleOpenNI\ulnone  (kinecTag_openni)
+\fs24 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\b0 \cf0 \
+This is a wrapper for the OpenNI code, which has built in tracking and gestural recognition, making it fairly stable. We modified the Hands3D example,  taking out the 3D navigation, adding a shading effect on the point cloud\
+\
+
+\i if(realWorldPoint.z > 600.0 && realWorldPoint.z < 1800.0) \{\
+    float fade = map(realWorldPoint.z, 600.0, 1800.0, 255.0, 0.0);\
+    stroke(fade);\
+    point(realWorldPoint.x,realWorldPoint.y,realWorldPoint.z); \
+\}
+\i0 \
+\
+and then converting the tracked hand point to screen coordinates\
+\
+
+\i context.convertRealWorldToProjective(handVec, screenPos);\
+
+\i0 \
+\
+We added the Ribbon Class and the custom drawing functions, as above. Our final draw() function looked like this:\
+\
+// Insert draw()\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\b\fs26 \cf0 \ul \ulc0 Summary:\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\b0\fs24 \cf0 \ulnone \
+Daniel Shiffman's library, while only working on OS X, is the easiest and quickest to install and get running, and provides basic functionality, including depth information, but not skeletal tracking or proper hand recognition. If it is used to draw point clouds based upon the depth information, it can slow down dramatically. \
+\
+OSCeleton is fast and accurate, but really only does one thing - skeletal tracking, which could work well for game design,  but is inappropriate for any type of interface design. It also has the disadvantage of requiring a separate application to run - and one which requires constant (re-)calibration, and isn't entirely stable.\
+\
+SimpleOpenNI seems - it i a rather new library - to offer the best all around functionality, with depth information, skeletal, and hand tracking, alongside gesture recognition. While it is not particularly slow, the development of the library can be expected to give a significant performance increase in the coming months. It does require a series of separate installations which aren't foolproof, but as it is also cross-platform, our conclusion is that this is best all-around library to make use of at the moment.\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\b\fs26 \cf0 \ul \ulc0 Links
+\fs24 \ulnone :\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\b0 \cf0 \
+Shiffman Kinect\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+{\field{\*\fldinst{HYPERLINK "http://www.shiffman.net/p5/kinect/"}}{\fldrslt \cf0 http://www.shiffman.net/p5/kinect/}}\
+\
+SenseBloom/PrimeSense/OpenNI\
+\pard\pardeftab720\ql\qnatural
+\cf0 \'a0{\field{\*\fldinst{HYPERLINK "http://tohmjudson.com/?p=30"}}{\fldrslt \cf3 \ul \ulc3 http://tohmjudson.com/?p=30}}\cf3 \ul \ulc3 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\cf0 \ulnone SimpleOpenNI\cf3 \ul \
+\pard\pardeftab720\ql\qnatural
+{\field{\*\fldinst{HYPERLINK "http://code.google.com/p/simple-openni/"}}{\fldrslt \cf3 http://code.google.com/p/simple-openni/}}\cf0 \ulnone \
+\pard\pardeftab720\ql\qnatural
+{\field{\*\fldinst{HYPERLINK "http://forum.processing.org/topic/announcing-simpleopenni"}}{\fldrslt \cf3 \ul http://forum.processing.org/topic/announcing-simpleopenni}}\cf3 \ul \
+\pard\pardeftab720\ql\qnatural
+{\field{\*\fldinst{HYPERLINK "http://code.google.com/p/simple-openni/wiki/Installation"}}{\fldrslt \cf3 http://code.google.com/p/simple-openni/wiki/Installation}}\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\cf0 \ulnone CLNUI\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+{\field{\*\fldinst{HYPERLINK "http://www.pixelnerve.com/v/2010/11/19/clnui-4-java-kinect/"}}{\fldrslt \cf0 http://www.pixelnerve.com/v/2010/11/19/clnui-4-java-kinect/}}\
+{\field{\*\fldinst{HYPERLINK "http://forum.processing.org/topic/clnui-4-java-kinect"}}{\fldrslt http://forum.processing.org/topic/clnui-4-java-kinect}}\
+\
+dLibs\cf3 \ul \
+\pard\pardeftab720\ql\qnatural
+{\field{\*\fldinst{HYPERLINK "https://github.com/diwi/dLibs"}}{\fldrslt \cf3 https://github.com/diwi/dLibs}}\
+\pard\pardeftab720\ql\qnatural
+{\field{\*\fldinst{HYPERLINK "http://forum.processing.org/topic/kinect-library-dlibs-freenect"}}{\fldrslt \cf3 http://forum.processing.org/topic/kinect-library-dlibs-freenect}}\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\cf0 \ulnone Natzke Ribbons in Processing\cf3 \ul \
+\pard\pardeftab720\ql\qnatural
+{\field{\*\fldinst{HYPERLINK "http://jamesalliban.wordpress.com/2008/12/04/2d-ribbons/"}}{\fldrslt \cf3 http://jamesalliban.wordpress.com/2008/12/04/2d-ribbons/}}\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\cf0 \ulnone GLGraphics Library\cf3 \ul \
+\pard\pardeftab720\ql\qnatural
+{\field{\*\fldinst{HYPERLINK "http://codeanticode.wordpress.com/2011/04/20/processing-1-5-glgraphics-0-95/"}}{\fldrslt \cf3 http://codeanticode.wordpress.com/2011/04/20/processing-1-5-glgraphics-0-95/}}\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\cf0 \ulnone SenseBloom Processing examples\cf3 \ul \
+\pard\pardeftab720\ql\qnatural
+{\field{\*\fldinst{HYPERLINK "https://github.com/Sensebloom/OSCeleton-examples"}}{\fldrslt \cf3 https://github.com/Sensebloom/OSCeleton-examples}}\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\cf0 \ulnone OscP5 Library\cf3 \ul \
+\pard\pardeftab720\ql\qnatural
+{\field{\*\fldinst{HYPERLINK "http://www.sojamo.de/libraries/oscP5/"}}{\fldrslt \cf3 http://www.sojamo.de/libraries/oscP5/}}\
+\
+}

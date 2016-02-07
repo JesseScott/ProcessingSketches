@@ -1,0 +1,151 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf350
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww16140\viewh21740\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\f0\fs24 \cf0 \
+\ul Lab | Tutorials\
+\ulnone \
+
+\i \
+\
+Android
+\i0 \
+\
+Link to Weave tutorial and source files\
+\
+acc >> cube + acc >> cube + acc >> texture cube  + acc >> cam + texture cube + acc\
+\
+gps >> earth2d >> earth3d + acc >> gps + earth3d + acc\
+\
+\
+
+\b\fs26 \ul GPS
+\b0 \ulnone \
+
+\fs24 \
+\ul Beginnings\ulnone \'85 (files 1.1 & 1.2)\
+\
+I was hitting my head over trying to get gps working on AP5 for a few days before I saw this example ( {\field{\*\fldinst{HYPERLINK "http://cagewebdev.com/android/gps_example.zip"}}{\fldrslt http://cagewebdev.com/android/gps_example.zip}} ) posted by Rolf van Gelder  on the Android portion of the Wiki. The Android Developers Reference ( {\field{\*\fldinst{HYPERLINK "http://developer.android.com/reference/android/location/package-summary.html"}}{\fldrslt http://developer.android.com/reference/android/location/package-summary.html}} ) location package gives a good idea of the classes and methods involved in setting up and querying the location manager, and I was almost there (far closer than I thought once I had the luxury of seeing Rolf's code), but sometimes it is best to use what is given to you\'85\
+\
+Though upon running the example code, I realized that it wasn't ever updating the latitude and longitude (though it would slightly if I quit the sketch and re-ran it), which had me confused. Looking over it a little more closely, I noticed in the onResume() function (where Android enters the sketch), this line:\
+\
+  locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);\
+\
+and on a hunch, I took a look at the reference for LocationManger Class ( {\field{\*\fldinst{HYPERLINK "http://developer.android.com/reference/android/location/LocationManager.html"}}{\fldrslt http://developer.android.com/reference/android/location/LocationManager.html}} ) and noticed that, aside from NETWORK_PROVIDER there is also GPS_PROVIDER\'85 and editing that line made the sketch refresh once every second (quite obvious, now that I think of it) !!\
+\
+I also noticed in the Location Class ( {\field{\*\fldinst{HYPERLINK "http://developer.android.com/reference/android/location/Location.html"}}{\fldrslt http://developer.android.com/reference/android/location/Location.html}} ) that, of course, there are more options than just Latitude, Longitude, and Accuracy, so I added variables to hold Altitude, Bearing, and Speed. Now, we just needed something to do with it\'85\
+\
+\
+\ul Earth (2D)\ulnone \'85 (files 2.1 & 2.2)\ul \
+\ulnone \
+Well, the obvious thing is to plot your location onto the earth, right? We already had a 2D sketch where we had a WorldMap Class (that contained the world) and a Point Class that plotted an ellipse at the Cartesian (XY) coordinates, so we just needed to port this to Android, add the GPS listener, and make our Latitude and Longitude control an instantiation of the Point Class. \
+\
+\
+\ul Earth (3D) + Accelerometer\ulnone  (files 3.1)\
+\
+Now, it was time to try the full-on textured sphere approach. There was already an example of this bundled in 0194, ported by Andres Colubri. I deleted a few things I didn't need need/want, and added the Accelerometer sensors (which is getting to be old hat to me by now\'85), then in the renderGlobe() function, instantiated them as such \
+\
+    float Azimuth = acc_values[0]/2;\
+    float Pitch = acc_values[1]/2;\
+\
+(I turned them down to smooth out the motion), then added \
+\
+        rotateX(Pitch/3 * PI);\
+        rotateY(Azimuth/3 * PI);\
+\
+(again, turned down for smoothness) after the ensuing pushMatrix() call. Though after second thought, I decided to automate the Y rotation and manually control the X, so declared \
+\
+	rotationY = 0;\
+\
+then replaced\
+\
+        rotateY(Azimuth/3 * PI);\
+\
+with\
+\
+        rotateY(rotationY);\
+\
+and finally added \
+\
+        rotationY -= 0.01;\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\cf0 \ul \ulc0 Earth (3D) + GPS\ulnone  (files 3.2)\
+\
+\
+From there, it was a simple matter to implement the GPS (now that I knew how!), then it was just a matter of figuring out how to translate Cartesian coordinates to Spherical ones. I referenced some built-in functions in toxilibs. I added these after draw() \
+\
+	Vec2D gps;\
+	Vec3D pos;\
+\
+	public void setLatLon() \{\
+  		gps = new Vec2D(currentLongitude, currentLatitude);\
+	\}\
+\
+	public Vec3D computePosOnSphere(int globeRadius) \{\
+  		pos = new Vec3D(globeRadius, MathUtils.radians(gps.x) + MathUtils.PI,MathUtils.radians(gps.y)).toCartesian();\
+  		return pos;\
+	\}\
+\
+	public void callPos() \{\
+  		setLatLon();\
+  		computePosOnSphere(globeRadius); \
+	\}\
+\
+and then called them inside renderGlobe(), like this\
+\
+\
+	 Vec2D latLon = new Vec2D();\
+	 latLon.x = currentLatitude;\
+	 latLon.y = currentLongitude;\
+	 Vec3D spherePos = new Vec3D();\
+	 Vec3D cartPos = new Vec3D();\
+	 spherePos = latToSphere(latLon, globeRadius);\
+	 cartPos = sphereToCart(spherePos); \
+\
+\
+\
+then after the sphere(globe)\
+\
+   	 pushMatrix();\
+    	   translate(width/2.0f, height/2.0f, zoom);\
+    	   rotateX(Pitch/3 * -PI);\
+    	   rotateY(rotationY);\
+   	   stroke(255, 100, 0);\
+   	   strokeWeight(10);\
+    	   line(0, 0, 0, spherePos.x * globeRadius/2, spherePos.y * globeRadius/2, spherePos.z * 1);\
+   	 popMatrix();\
+\
+\
+\ul Earth (3D) + MultiTouch\ulnone  (files 3.3)\
+\
+From there, I thought one more thing was to implement some type of zoom, in order to see the details on the earth a little bit more\'85 I took the multitouch example from Eric Pavey ( {\field{\*\fldinst{HYPERLINK "http://www.akeric.com/blog/?p=1435"}}{\fldrslt http://www.akeric.com/blog/?p=1435}} ) and placed a simple distance function once the code recognized that two multitouch points were active\'85 \
+\
+	  if (mousePressed == true) \{\
+    	    for(int i=0; i < maxTouchEvents; i++) \{\
+      	      if(mt[1].touched == true) \{\
+        	        zoom = dist( mt[0].motionX, mt[0].motionY, mt[1].motionX, mt[1].motionY ) - globeRadius;\
+       	      \}\
+    	    \}\
+  	  \}\
+\
+\
+then, in my renderGlobe() function, I translated the Z value by zoom, like this: \
+\
+      translate(width/2.0f, height/2.0f, zoom);\
+\
+\'85 it's a little choppy, and not quite properly gesture-driven, but it works!\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+}
