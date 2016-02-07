@@ -1,0 +1,37 @@
+
+================================================================================
+
+    Processing.js Exporter
+
+================================================================================
+    
+    A tool that exports sketches directly from the Processing PDE as
+    HTML + processing.js. Ready for your website.
+
+    It sports a template system that allows you to provide your own style.
+
+================================================================================
+
+    This tool is heavily based on the applet export that is already part
+    of our beloved Processing PDE.
+
+================================================================================
+    
+    Getting started:
+    https://github.com/fjenett/processingjstool/wiki
+    
+    Issues, bugs, requests:
+    https://github.com/fjenett/processingjstool/issues
+
+================================================================================
+
+    Included (but currently disabled) syntax checker is Env.js + Rhino.
+    http://www.envjs.com/
+
+================================================================================
+
+    (CC) This work is licensed under a
+    Creative Commons Attribution-NonCommercial 3.0 Unported License.
+    http://creativecommons.org/licenses/by-nc/3.0/
+
+================================================================================

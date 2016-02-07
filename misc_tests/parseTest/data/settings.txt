@@ -1,0 +1,9 @@
+NumScreens         =  2
+FirstScreenWidth   =  1280
+FirstScreenHeight  =  720
+SecondScreenOffset =  1200
+SecondScreenWidth  =  640
+SecondScreenHeight =  360
+ThirdScreenOffset  =  1500
+ThirdScreenWidth   =  640
+ThirdScreenHeight  =  360

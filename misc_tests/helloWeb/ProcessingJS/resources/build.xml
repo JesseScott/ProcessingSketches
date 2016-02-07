@@ -1,0 +1,171 @@
+<project name="ProcessingJS" default="build" basedir="../">
+    
+	<description>
+        Processing.js Tool build file.
+		http://github.com/fjenett/processingjstool
+	</description>
+	
+	<property name="processing" 	location="/Users/fjenett/Documents/Processing" />
+	<property name="processing_lib" location="/Applications/Processing.app/Contents/Resources/Java" />
+
+	<property name="author" 		value="Florian Jenett" />
+	<property name="copyright" 		value="(c) 2008 - 2010" />
+	<property name="toolName"  		value="ProcessingJS" />
+	<property name="versionNumber"  value="0.1.1" />
+	<property name="yourLink"  		value="http://www.bezier.de/" />
+	<property name="javaVersion" 	value="1.5" />
+	
+	<property name="test_dir" 	location="test" />
+	<property name="libRhino" 	location="tool" />
+	
+	<path id="library-classpath">
+		<fileset dir="${processing_lib}" >		
+			<include name="core.jar"/>
+			<include name="pde.jar"/>
+		</fileset>
+		<!-- include Rhino -->
+		<fileset dir="${libRhino}">
+			<include name="js.jar" />
+		</fileset>
+	</path>
+	
+	<!-- no changes or adjustments required below -->
+	
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
+		<classpath>
+			<pathelement location="./resources/code/ant-contrib-1.0b3.jar"/>
+		</classpath>
+	</taskdef>
+	
+	<property name="jarFile" 		value="${toolName}.jar"/>
+	<property name="src" 			location="src"/>
+	<property name="src.versioned"	location="src-versioned"/>
+	<property name="bin" 			location="bin"/>
+	<property name="javadoc" 		location="documentation"/>
+	<property name="dist" 			location="distribution"/>
+	
+		<!-- build number -->
+		<buildnumber file="lib/build.number"/>
+		
+		<!-- time stamp -->
+		<tstamp> 
+			<format property="date" pattern="MM/dd/yyyy" offset="0" unit="hour"/>
+		</tstamp>
+	
+	<target name="init">
+		
+		<echo>
+		build					${build.number}
+		version					${versionNumber}
+		on						${date}
+		===========================================
+		src path				${src}
+		bin path 				${bin}
+		libraryClasspath		${processing_lib}
+		processing Libraries	${processing}
+		java version			${javaVersion}
+		===========================================
+		</echo>
+		
+	</target>
+  
+	<!-- compile the tool -->
+	<target name="compile" depends="init" description="compile the source" >
+		
+		<delete dir="${src.versioned}" />
+		<mkdir dir="${src.versioned}" />
+		<antcall target="versionSources" />
+	
+		<delete dir="${bin}" />
+		<mkdir dir="${bin}" />
+		
+		<javac srcdir="${src.versioned}" destdir="${bin}" source="${javaVersion}" target="${javaVersion}">
+			<classpath>
+				<path refid="library-classpath"/>
+			</classpath>
+		</javac>
+	
+	</target>
+
+	<!-- build the distribution of the tool -->
+	<target name="build" depends="compile" description="generate the distribution" >
+	
+		<!-- delete the previous build and start fresh -->
+		
+		<delete dir="${dist}" />
+		<mkdir dir="${dist}" />
+		
+		<!-- package jar and copy dirs -->
+		
+		<jar jarfile="tool/${jarFile}" basedir="${bin}"/>
+		
+		<copy todir="${dist}/tool">
+			<fileset file="tool/${jarFile}" />
+			<fileset file="${libRhino}/js.jar" />
+		</copy>
+		
+		<copy todir="${dist}/templates">
+			<fileset dir="templates"/>
+		</copy>
+		
+		<copy todir="${dist}/src">
+			<fileset dir="${src.versioned}"/>
+		</copy>
+		
+		<copy todir="${dist}/test">
+			<fileset dir="${test_dir}"/>
+		</copy>
+	
+		<!-- zip the distribution of the tool -->
+		
+		<mkdir dir="distributions" />
+		<zip destfile="distributions/${toolName}_${versionNumber}.zip"
+			   basedir="${dist}"
+			   excludes="**/_DS.Store"
+		/>
+		
+		<!-- distribute to Processing sketchbook -->
+		
+		<mkdir dir="${processing}/tools/${toolName}" />
+		<copy todir="${processing}/tools/${toolName}">
+			<fileset dir="${dist}/" />
+		</copy>
+	  
+	</target>
+		
+	
+	<!-- parsing the source files adding version, date -->
+	
+	<target name="versionSources">
+		
+		<copy toDir="${src.versioned}">
+			<fileset dir="${src}" />
+		</copy>
+		
+		<path id="src.contents">
+			<fileset dir="${src.versioned}" includes="**/*.java" />
+		</path>
+		
+		<property name="src.list" refid="src.contents" />
+		
+		<foreach list="${src.list}" param="file" target="versionSourcefile" delimiter=":" />
+		
+	</target>
+	
+	<!-- currently replaces ##version##, ##date## & ##build## -->
+	<target name="versionSourcefile">
+		
+		<echo>${file}</echo>
+		
+		<replaceregexp file="${file}" match="##version##"
+					   replace="${versionNumber}" flags="g" />
+		
+		<replaceregexp file="${file}" match="##date##"
+					   replace="${date}" flags="g" />
+		
+		<replaceregexp file="${file}" match="##build##"
+					   replace="${build.number}" flags="g" />
+	</target>
+	
+</project>
+

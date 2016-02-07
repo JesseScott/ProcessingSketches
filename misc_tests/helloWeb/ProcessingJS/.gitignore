@@ -1,0 +1,13 @@
+
+# macish
+.DS_Store
+
+# temp + other clutter
+bin/
+distribution/
+distributions/
+src-versioned
+vers
+run.sh
+verifyj15.sh
+lib/build.number

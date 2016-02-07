@@ -1,0 +1,40 @@
+
+
+    The files inside "template_js" are the default export templates.
+    
+    applet.html     A HTML template, becomes index.html upon export.
+    processing.js   The Processing.js framework.
+    
+    "only_js" holds an example for a JavaScript only version. Copy into
+    your sketch / project folder and rename to "template_js".
+    
+===============================================================================
+
+    Creating your own / modifying / overriding the templates
+    
+    You can let projects have their own templates by copying the "template_js"
+    folder into your sketch folder. Edit the contents of applet.html as you
+    want but do not rename files. Every word that starts and ends with double
+    at-signs like "@@sketch@@" are placeholders for values being inserted
+    on export.
+    
+    Any additional files inside "template_js" are copied along.
+    
+===============================================================================
+    
+    Updating to the latest Processing.js by hand
+    
+    Just replace the "template_js/processing.js" with the latest from:
+    
+    http://processingjs.org/download
+    
+    Make sure to keep the name "processing.js", let me know if you find
+    anything that does not work anymore and used to work with earlier
+    versions.
+
+===============================================================================
+
+    More information might be available here:
+    
+    https://github.com/fjenett/processingjstool/wiki/Templates-+-Processing.js
+    
