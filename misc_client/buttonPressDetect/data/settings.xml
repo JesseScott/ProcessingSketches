@@ -1,0 +1,17 @@
+ <?xml version="1.0"?>
+ <settings>
+   <tag id="0" name="numButtons">22</tag> <!-- The Number of 'Buttons' arrayed around the screen -->
+   <tag id="1" name="sizeButtons">30</tag> <!-- The Size of the Buttons - IN PIXELS -->
+   <tag id="2" name="trigTime">150</tag> <!-- The Amount of Time Before A Trigger Is Sent - IN MILLISECONDS -->
+   <tag id="3" name="ipAddress">192.168.1.99</tag> <!-- The IP Address To Send To -->
+   <tag id="4" name="port">5000</tag> <!-- The Port To Send On -->
+   <tag id="5" name="delay">2000</tag> <!-- The Delay Between Messages - IN MILLISECONDS -->
+   <tag id="6" name="tableHeight">2670</tag> <!-- The Height Of The Sensing Zone - IN KINECT DEPTHMAP -->
+   <tag id="7" name="zOffset">75</tag> <!-- The Offset Of how far velow the sensing zone to trigger - IN KINECT DEPTHMAP -->
+   <tag id="8" name="calibrate">false</tag> <!-- Whether To Run Calibration Routine - TRUE OR FALSE -->
+   <tag id="9" name="display">true</tag> <!-- Whether To Display Blobs Onscreen - TRUE OR FALSE -->
+   <tag id="10" name="debug">true</tag> <!-- Whether To Debug To Console - TRUE OR FALSE -->
+   <tag id="11" name="blobMin">0.03</tag> <!-- Minimum Size Of Blobs To Draw - BETWEEN 0.0 & 1.0 -->
+   <tag id="12" name="blobMax">0.09</tag> <!-- Maximum Size Of Blobs To Draw - BETWEEN 0.0 & 1.0  -->
+   <tag id="13" name="blobThresh">0.25</tag> <!-- Threshold Of Blob Detection - BETWEEN 0.0 & 1.0  -->
+ </settings>
